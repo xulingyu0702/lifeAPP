@@ -50,6 +50,7 @@
 </template>
 <script>
 import "@/assets/font/iconfont.css";
+import axios from 'axios';
 export default {
   props: ["musicList"],
   data() {
@@ -100,6 +101,9 @@ export default {
       this.albumTitle = nowMusic.title;
       this.albumAuthor = nowMusic.author;
       this.musicSrc = nowMusic.src;
+      axios.get('/' + nowMusic.lrc).then(res=>{
+          console.log(res.data)
+      })
     }
   }
 };
