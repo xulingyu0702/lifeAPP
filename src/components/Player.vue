@@ -11,10 +11,10 @@
         <p class="album-info-author">{{albumAuthor}}</p>
         <div class="album-info-control clearfix">
           <div class="album-info-control-icon">
-            <i class="icon iconfont icon-shangyishou"></i>
-            <i class="icon iconfont icon-bofang" v-show="!isPlay"></i>
-            <i class="icon iconfont icon-zanting" v-show="isPlay"></i>
-            <i class="icon iconfont icon-xiayishou"></i>
+            <i class="icon iconfont icon-shangyishou" @click="prev()"></i>
+            <i class="icon iconfont icon-bofang" v-show="!isPlay" @click="play()"></i>
+            <i class="icon iconfont icon-zanting" v-show="isPlay" @click="pause()"></i>
+            <i class="icon iconfont icon-xiayishou" @click="next()"></i>
           </div>
           <span @click="toggleList=!toggleList" class="album-info-control-menu">歌单</span>
         </div>
@@ -23,20 +23,29 @@
     <!-- 歌单 -->
     <transition name="slide">
       <ul class="music-list" v-show="toggleList">
-      <li
-        @click="selected(music,index)"
-        v-for="(music,index) in musicList"
-        :key="index"
-        :class="['music-list-item', nowIndex==index ? 'selected' : '']"
-      >
-        <span class="music-list-item-title">{{music.title}}&nbsp;-&nbsp;</span>
-        <span class="music-list-item-author">{{music.author}}</span>
-      </li>
-    </ul>
+        <li
+          @click="selected(music,index)"
+          v-for="(music,index) in musicList"
+          :key="index"
+          :class="['music-list-item', nowIndex==index ? 'selected' : '']"
+        >
+          <span class="music-list-item-title">{{music.title}}&nbsp;-&nbsp;</span>
+          <span class="music-list-item-author">{{music.author}}</span>
+        </li>
+      </ul>
     </transition>
     <!-- 播放控件 -->
-    <audio :src="musicSrc" autoplay controls class="audio"></audio>
-  
+    <div class="audio">
+      <audio
+        ref="musicAudio"
+        @play="isPlay=true "
+        @pause="isPlay=false"
+        :src="musicSrc"
+        autoplay
+        controls
+        class="audio-ctrl"
+      ></audio>
+    </div>
   </div>
 </template>
 <script>
@@ -60,10 +69,37 @@ export default {
   methods: {
     selected(music, index) {
       this.nowIndex = index;
-      this.albumImg = music.musicImgSrc;
-      this.albumTitle = music.title;
-      this.albumAuthor = music.author;
-      this.musicSrc=music.src;
+      // this.albumImg = music.musicImgSrc;
+      // this.albumTitle = music.title;
+      // this.albumAuthor = music.author;
+      // this.musicSrc=music.src;
+    },
+    play() {
+      this.$refs.musicAudio.play();
+    },
+    pause() {
+      this.$refs.musicAudio.pause();
+    },
+    prev() {
+      this.nowIndex--;
+      if (this.nowIndex == -1) {
+        this.nowIndex = this.musicList.length - 1;
+      }
+    },
+    next() {
+      this.nowIndex++;
+      if (this.nowIndex == this.musicList.length - 1) {
+        this.nowIndex = 1;
+      }
+    }
+  },
+  watch: {
+    nowIndex() {
+      let nowMusic = this.musicList[this.nowIndex];
+      this.albumImg = nowMusic.musicImgSrc;
+      this.albumTitle = nowMusic.title;
+      this.albumAuthor = nowMusic.author;
+      this.musicSrc = nowMusic.src;
     }
   }
 };
